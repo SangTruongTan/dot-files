@@ -19,7 +19,7 @@ Personal shell and terminal configuration for macOS and Linux.
 Clone the repo and run the interactive installer:
 
 ```sh
-git clone https://github.com/struong/dotfiles.git ~/dotfiles
+git clone https://github.com/SangTruongTan/dot-files.git ~/dotfiles
 cd ~/dotfiles
 bash install.sh
 ```
