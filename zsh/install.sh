@@ -7,17 +7,48 @@ OS="$(uname -s)"
 info()    { echo "[zsh] $*"; }
 success() { echo "[zsh] ✓ $*"; }
 
+install_brew() {
+  if command -v brew &>/dev/null; then
+    success "Homebrew already installed."
+    return
+  fi
+  if [[ "$OS" == "Darwin" ]]; then
+    echo "Homebrew not found. Install it from https://brew.sh and re-run."
+    exit 1
+  fi
+  info "Installing Homebrew (Linux)..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  success "Homebrew installed."
+}
+
 install_zsh() {
   if command -v zsh &>/dev/null; then
     success "zsh already installed: $(zsh --version)"
     return
   fi
   info "Installing zsh..."
-  case "$OS" in
-    Darwin) brew install zsh ;;
-    Linux)  sudo apt-get install -y zsh ;;
-  esac
+  brew install zsh
   success "zsh installed."
+}
+
+set_default_shell() {
+  local zsh_path
+  zsh_path="$(which zsh)"
+
+  if ! grep -qx "$zsh_path" /etc/shells; then
+    info "Adding $zsh_path to /etc/shells..."
+    echo "$zsh_path" | sudo tee -a /etc/shells
+  fi
+
+  if [[ "$SHELL" == "$zsh_path" ]]; then
+    success "zsh is already the default shell."
+    return
+  fi
+
+  info "Setting zsh as default shell..."
+  chsh -s "$zsh_path"
+  success "Default shell set to zsh. Re-login to apply."
 }
 
 install_omz() {
@@ -49,64 +80,18 @@ install_zsh_plugins() {
   done
 }
 
-install_oh_my_posh() {
-  if command -v oh-my-posh &>/dev/null; then
-    success "oh-my-posh already installed."
-    return
-  fi
-  info "Installing oh-my-posh..."
-  case "$OS" in
-    Darwin) brew install jandedobbeleer/oh-my-posh/oh-my-posh ;;
-    Linux)  curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.local/bin ;;
-  esac
-  success "oh-my-posh installed."
-}
-
-install_fzf() {
-  if command -v fzf &>/dev/null; then
-    success "fzf already installed."
-    return
-  fi
-  info "Installing fzf..."
-  case "$OS" in
-    Darwin) brew install fzf ;;
-    Linux)  sudo apt-get install -y fzf ;;
-  esac
-  success "fzf installed."
-}
-
-install_eza() {
-  if command -v eza &>/dev/null; then
-    success "eza already installed."
-    return
-  fi
-  info "Installing eza..."
-  case "$OS" in
-    Darwin) brew install eza ;;
-    Linux)
-      sudo apt-get install -y gpg wget
-      sudo mkdir -p /etc/apt/keyrings
-      wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
-        | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-      echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
-        | sudo tee /etc/apt/sources.list.d/gierens.list
-      sudo apt-get update && sudo apt-get install -y eza
-      ;;
-  esac
-  success "eza installed."
-}
-
-install_pyenv() {
-  if command -v pyenv &>/dev/null; then
-    success "pyenv already installed."
-    return
-  fi
-  info "Installing pyenv..."
-  case "$OS" in
-    Darwin) brew install pyenv ;;
-    Linux)  curl https://pyenv.run | bash ;;
-  esac
-  success "pyenv installed."
+install_tools() {
+  local tools=(jandedobbeleer/oh-my-posh/oh-my-posh fzf eza pyenv)
+  for tool in "${tools[@]}"; do
+    local name="${tool##*/}"
+    if command -v "$name" &>/dev/null; then
+      success "$name already installed."
+    else
+      info "Installing $name..."
+      brew install "$tool"
+      success "$name installed."
+    fi
+  done
 }
 
 link_config() {
@@ -122,13 +107,12 @@ link_config() {
   success "Linked ~/.zshrc → $source"
 }
 
+install_brew
 install_zsh
+set_default_shell
 install_omz
 install_zsh_plugins
-install_oh_my_posh
-install_fzf
-install_eza
-install_pyenv
+install_tools
 link_config
 
 echo ""
