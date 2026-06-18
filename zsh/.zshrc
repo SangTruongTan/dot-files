@@ -81,12 +81,12 @@ source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # ===== Theme =====
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    _OMP_CONFIG="$(brew --prefix oh-my-posh)/themes/negligible.omp.json"
+    _OMP_THEME="negligible"
   else
-    _OMP_CONFIG="${HOME}/.local/share/oh-my-posh/themes/half-life.omp.json"
+    _OMP_THEME="half-life"
   fi
-  eval "$(oh-my-posh init zsh --config "$_OMP_CONFIG")"
-  unset _OMP_CONFIG
+  eval "$(oh-my-posh init zsh --config "$(brew --prefix oh-my-posh)/themes/${_OMP_THEME}.omp.json")"
+  unset _OMP_THEME
 fi
 
 # Alias
