@@ -72,12 +72,11 @@ setopt interactivecomments transientrprompt
 # ===== Load Plugins in Correct Order =====
 # zsh-syntax-highlighting MUST be sourced last.
 # fzf-tab MUST come after compinit (provided by zsh-completions) and before syntax-highlighting.
-# zsh-autocomplete removed — it leaks async fds and intermittently closes stdout.
-source ~/.oh-my-zsh/custom/plugins/zsh-completions/zsh-completions.plugin.zsh
+source ~/.zsh/plugins/zsh-completions/zsh-completions.plugin.zsh
 autoload -Uz compinit && compinit
-source ~/.oh-my-zsh/custom/plugins/fzf-tab/fzf-tab.plugin.zsh
-source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # ===== Theme =====
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then

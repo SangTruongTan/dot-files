@@ -51,18 +51,9 @@ set_default_shell() {
   success "Default shell set to zsh. Re-login to apply."
 }
 
-install_omz() {
-  if [[ -d ~/.oh-my-zsh ]]; then
-    success "Oh My Zsh already installed."
-    return
-  fi
-  info "Installing Oh My Zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-  success "Oh My Zsh installed."
-}
-
 install_zsh_plugins() {
-  local plugins_dir=~/.oh-my-zsh/custom/plugins
+  local plugins_dir=~/.zsh/plugins
+  mkdir -p "$plugins_dir"
   declare -A plugins=(
     ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
     ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting"
@@ -110,7 +101,6 @@ link_config() {
 install_brew
 install_zsh
 set_default_shell
-install_omz
 install_zsh_plugins
 install_tools
 link_config
