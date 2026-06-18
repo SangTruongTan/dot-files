@@ -56,4 +56,9 @@ install_tpm
 link_config
 
 echo ""
-echo "Done! Open tmux and press prefix + I to install plugins."
+echo "Done!"
+echo ""
+echo "Next steps:"
+echo "  1. Start tmux (or attach to an existing session)"
+echo "  2. Reload the config:   tmux source ~/.tmux.conf"
+echo "  3. Install plugins:     prefix + I"
