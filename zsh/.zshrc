@@ -5,15 +5,55 @@ bindkey -e
 bindkey '^[[1;3D' backward-word   # Alt + ←
 bindkey '^[[1;3C' forward-word    # Alt + →
 
-# Also support some terminals' alternate codes
+# Also support some terminals' alternate code for Alt+←
 bindkey '^[OD' backward-word
-bindkey '^[OC' forward-word
 
 # Backward delete a line
 bindkey \^U backward-kill-line
 
+# Smart right arrow: accepts the whole autosuggestion if visible, else moves cursor.
+# Binds both escape sequences terminals use for → (xterm normal + application cursor mode).
+_autosuggest_or_forward() {
+    if [[ -n "$POSTDISPLAY" ]]; then
+        zle autosuggest-accept
+    else
+        zle forward-char
+    fi
+}
+zle -N _autosuggest_or_forward
+bindkey '^[[C' _autosuggest_or_forward   # → xterm normal mode
+bindkey '^[OC' _autosuggest_or_forward   # → application cursor mode
+
+# ↑ opens fzf history search, pre-filtered by whatever is already typed in the buffer.
+# Escape cancels without changing the buffer; Enter accepts the selected command.
+_history_fzf() {
+    local selected
+    selected=$(
+        fc -rln 1 |
+        awk '!seen[$0]++' |
+        fzf --query "$BUFFER" \
+            --no-sort \
+            --prompt=' history  ' \
+            --height=~40% \
+            --border=rounded
+    )
+    if [[ -n "$selected" ]]; then
+        BUFFER="$selected"
+        CURSOR=${#BUFFER}
+    fi
+    zle reset-prompt
+}
+zle -N _history_fzf
+bindkey '^[[A' _history_fzf   # ↑ xterm normal mode
+bindkey '^[OA' _history_fzf   # ↑ application cursor mode
+
 # Exclude / and . from word characters so Alt+Arrow stops at path segments and file extensions
 WORDCHARS='*?_-[]~=&;!#$%^(){}<>'
+
+# Homebrew (Linux only — macOS sets this up automatically via /etc/zprofile)
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 
 # === Zsh History Settings ===
 HISTFILE=~/.zsh_history           # Where history is saved
@@ -25,9 +65,7 @@ setopt SHARE_HISTORY              # Share history across terminals
 setopt HIST_IGNORE_DUPS          # Don't record duplicate commands
 setopt HIST_REDUCE_BLANKS        # Remove extra spaces
 
-# Make autosuggestions a clearer color (e.g., bright cyan)
-# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#7FD1F7'     # Bright cyan (nice on dark themes)
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#F7768E'     # Soft red/pink (like Tokyo Night)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#ff9e64'   # Tokyo Night orange
 
 setopt interactivecomments transientrprompt
 
@@ -46,7 +84,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   if [[ "$OSTYPE" == "darwin"* ]]; then
     _OMP_CONFIG="$(brew --prefix oh-my-posh)/themes/negligible.omp.json"
   else
-    _OMP_CONFIG="${HOME}/.local/share/oh-my-posh/themes/negligible.omp.json"
+    _OMP_CONFIG="${HOME}/.local/share/oh-my-posh/themes/half-life.omp.json"
   fi
   eval "$(oh-my-posh init zsh --config "$_OMP_CONFIG")"
   unset _OMP_CONFIG
@@ -92,8 +130,10 @@ if [[ -f ~/.zprofile ]]; then
 fi
 
 # Pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+if [[ -d "$HOME/.pyenv" ]]; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+fi
 
 export PATH="$HOME/.local/bin:$PATH"
