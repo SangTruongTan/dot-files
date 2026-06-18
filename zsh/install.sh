@@ -51,24 +51,23 @@ set_default_shell() {
   success "Default shell set to zsh. Re-login to apply."
 }
 
+clone_plugin() {
+  local name="$1" url="$2" plugins_dir=~/.zsh/plugins
+  if [[ -d "$plugins_dir/$name" ]]; then
+    success "$name already installed."
+  else
+    info "Installing $name..."
+    git clone "$url" "$plugins_dir/$name"
+    success "$name installed."
+  fi
+}
+
 install_zsh_plugins() {
-  local plugins_dir=~/.zsh/plugins
-  mkdir -p "$plugins_dir"
-  declare -A plugins=(
-    ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
-    ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting"
-    ["zsh-completions"]="https://github.com/zsh-users/zsh-completions"
-    ["fzf-tab"]="https://github.com/Aloxaf/fzf-tab"
-  )
-  for plugin in "${!plugins[@]}"; do
-    if [[ -d "$plugins_dir/$plugin" ]]; then
-      success "$plugin already installed."
-    else
-      info "Installing $plugin..."
-      git clone "${plugins[$plugin]}" "$plugins_dir/$plugin"
-      success "$plugin installed."
-    fi
-  done
+  mkdir -p ~/.zsh/plugins
+  clone_plugin zsh-autosuggestions    https://github.com/zsh-users/zsh-autosuggestions
+  clone_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting
+  clone_plugin zsh-completions         https://github.com/zsh-users/zsh-completions
+  clone_plugin fzf-tab                 https://github.com/Aloxaf/fzf-tab
 }
 
 install_tools() {
