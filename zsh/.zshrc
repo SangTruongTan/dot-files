@@ -1,12 +1,10 @@
 # Use emacs-style keymap (gives you Ctrl-A / Ctrl-E, etc.)
 bindkey -e
 
-# Map Alt+Arrow sequences (what your terminal sends)
+# Alt+Arrow: move by word
 bindkey '^[[1;3D' backward-word   # Alt + ←
 bindkey '^[[1;3C' forward-word    # Alt + →
 
-# Also support some terminals' alternate code for Alt+←
-bindkey '^[OD' backward-word
 
 # Backward delete a line
 bindkey \^U backward-kill-line
@@ -83,7 +81,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   if [[ "$OSTYPE" == "darwin"* ]]; then
     _OMP_THEME="negligible"
   else
-    _OMP_THEME="half-life"
+    _OMP_THEME="bubblesextra"
   fi
   eval "$(oh-my-posh init zsh --config "$(brew --prefix oh-my-posh)/themes/${_OMP_THEME}.omp.json")"
   unset _OMP_THEME
@@ -135,4 +133,11 @@ if [[ -d "$HOME/.pyenv" ]]; then
   eval "$(pyenv init -)"
 fi
 
+# Cursor CLI
 export PATH="$HOME/.local/bin:$PATH"
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && \. "$(brew --prefix nvm)/nvm.sh"
+[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix nvm)/etc/bash_completion.d/nvm"
+
